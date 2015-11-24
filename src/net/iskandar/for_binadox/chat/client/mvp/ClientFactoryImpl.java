@@ -1,6 +1,9 @@
 package net.iskandar.for_binadox.chat.client.mvp;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.place.shared.PlaceController;
 
 import net.iskandar.for_binadox.chat.client.ChatFacade;
 import net.iskandar.for_binadox.chat.client.ChatFacadeAsync;
@@ -9,14 +12,16 @@ import net.iskandar.for_binadox.chat.client.mvp.ui.ChatPanel;
 
 public class ClientFactoryImpl implements ClientFactory {
 
+	private static EventBus eventBus;
 	private static ChatFacadeAsync chatFacade = GWT.create(ChatFacade.class);
 	private static ChatPanel chatPanel;
-	
+	private static PlaceController placeController;	
+
 	static {
 		PollingChatModelImpl chatModel = new PollingChatModelImpl(chatFacade); 
 		chatPanel = new ChatPanel(chatModel);		
 	}
-	
+
 	@Override
 	public ChatPanel chatPanel() {
 		return chatPanel;
@@ -26,5 +31,17 @@ public class ClientFactoryImpl implements ClientFactory {
 	public ChatFacadeAsync chatFacade() {
 		return chatFacade;
 	}
+
+	@Override
+	public EventBus eventBus() {
+		if (eventBus == null) eventBus = new SimpleEventBus();
+		return eventBus;		
+	}
+	
+	@Override
+	public PlaceController placeController() {
+		if (placeController == null) placeController = new PlaceController(eventBus());
+		return placeController;
+	}	
 
 }

@@ -31,41 +31,22 @@ import net.iskandar.for_binadox.chat.client.mvp.ui.ChatPanel;
 import net.iskandar.for_binadox.chat.client.to.ChatTo;
 import net.iskandar.for_binadox.chat.shared.FieldVerifier;
 
-/*
-<script type="text/javascript" language="javascript" src="chat/sc/modules/ISC_Core.js"></script>	
-<script type="text/javascript" language="javascript" src="chat/sc/modules/ISC_Foundation.js"></script>	
-<script type="text/javascript" language="javascript" src="chat/sc/modules/ISC_Containers.js"></script>	
-<script type="text/javascript" language="javascript" src="chat/sc/modules/ISC_Grids.js"></script>	
-<script type="text/javascript" language="javascript" src="chat/sc/modules/ISC_Forms.js"></script>	
-<script type="text/javascript" language="javascript" src="chat/sc/modules/ISC_RichTextEditor.js"></script>	
-<script type="text/javascript" language="javascript" src="chat/sc/modules/ISC_Calendar.js"></script>	
-<script type="text/javascript" language="javascript" src="chat/sc/modules/ISC_DataBinding.js"></script>	
-<script type="text/javascript" language="javascript" src="chat/sc/skins/Enterprise/load_skin.js"></script>	
-
- */
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class Chat implements EntryPoint {
-	/**
-	 * The message displayed to the user when the server cannot be reached or
-	 * returns an error.
-	 */
-	private static final String SERVER_ERROR = "An error occurred while "
-			+ "attempting to contact the server. Please check your network "
-			+ "connection and try again.";
-	
+
 	private static final Logger log = new Logger("Chat");
-	
+
 	private static final ClientFactory clientFactory = GWT.create(ClientFactory.class);
+
+	private Initializer initializer = GWT.create(Initializer.class);
 
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		Initializer initializer = GWT.create(Initializer.class);
 		initializer.initApp();
 	}
-	
-	
+
 }

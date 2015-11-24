@@ -11,8 +11,12 @@ import net.iskandar.for_binadox.chat.client.to.ChatMessageTo;
 import net.iskandar.for_binadox.chat.client.to.UserTo;
 
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -27,6 +31,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.Overflow;
 import com.smartgwt.client.util.SC;
+import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.HTMLFlow;
 import com.smartgwt.client.widgets.HTMLPane;
 import com.smartgwt.client.widgets.IButton;
@@ -36,7 +41,7 @@ import com.smartgwt.client.widgets.events.ResizedHandler;
 import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.VLayout;
 
-public class ChatPanel extends VLayout implements ChatModel.Listener {
+public class ChatPanel extends VLayout implements ChatModel.Listener, Resizeable {
 
 	private static final Logger log = new Logger("ChatPanel");
 
@@ -46,6 +51,7 @@ public class ChatPanel extends VLayout implements ChatModel.Listener {
 	private DockPanel chatControl;
 	private ChatModel chatModel;
 	private Button button;
+	private Integer chatId;
 	
 	private HandlerRegistration resizeHandler;
 	
@@ -60,17 +66,18 @@ public class ChatPanel extends VLayout implements ChatModel.Listener {
 	
 	public ChatPanel(ChatModel chatModel) {
 		super();
-		
+
 		this.chatModel = chatModel;
 		chatModel.addListener(this);
 		
-		//setShowEdges(true);
-
 		chatLog = new VLayout();
 		chatLog.setWidth("100%");
 		chatLog.setHeight("*");
-		chatLog.setShowEdges(true);
+		//chatLog.setBorder("1px green solid");
+		//chatLog.setShowEdges(true);
 		chatLog.setOverflow(Overflow.AUTO);
+		
+		//setShowEdges(true);
 
 		chatControl = new DockPanel();
 		chatControl.setStyleName("cw-DockPanel");
@@ -89,25 +96,40 @@ public class ChatPanel extends VLayout implements ChatModel.Listener {
 			public void onClick(ClickEvent event) {
 				ChatPanel.this.chatModel.postMessage(textArea.getText());
 				textArea.setText("");
+				button.setEnabled(false);
 			}
 
 		});
 		button.setWidth("95px");
 		button.setHeight("95px");
+		button.setEnabled(false);
+		
+		textArea.addKeyUpHandler(new KeyUpHandler() {
+			
+			@Override
+			public void onKeyUp(KeyUpEvent event) {
+				log.log("textArea.onKeyUp text=" + textArea.getText());
+				button.setEnabled(!"".equals(textArea.getText()));
+			}
+		});
+
 		chatControl.add(textArea, DockPanel.CENTER);
 		chatControl.add(button, DockPanel.EAST);
 		
 //		chatControl.setMembers(textArea, button);
 //		chatControl.setMembers(new BlueBox("*", null, "TEXTAREA"), new BlueBox("95px", null, "TEXTAREA"));
-		
 		addMember(chatLog);
 		addMember(chatControl);
-
+		
 	}
 
 	public void setChatId(Integer chatId){
-		chatLog.clear();
-		chatModel.init(chatId, 0);
+		log.log("setChatId chatId=" + chatId);
+		this.chatId = chatId;
+		for(Canvas canvas : chatLog.getMembers())
+			chatLog.removeChild(canvas);
+		this.latestChatItem = null;
+		chatModel.init(chatId, 0);		
 	}
 
 	@Override
@@ -116,51 +138,29 @@ public class ChatPanel extends VLayout implements ChatModel.Listener {
 		log.log("onBind");
 	}
 	
+	@Override
 	public void resize(int width, int height){
+		log.log("resize");
+		minimizeTextArea();
 		setWidth(width);
 		setHeight(height);
-		int newWidth = (getWidth() - 130);
+		int newWidth = (getWidth() - 140);
 		ChatPanel.log.log("onResized newWidth=" + newWidth);
 		textArea.setWidth(newWidth + "px");
 		textArea.setHeight("87px");
 	}
 
-/*	@Override
+	@Override
 	protected void onDraw() {
 		super.onDraw();
 		log.log("onDraw");
-		if(resizeHandler == null){
-			textArea.setWidth((this.getWidth() - 140) + "px");
-			button.setSize("95px", "95px");
-			resizeHandler = addResizedHandler(new ResizedHandler() {
-				@Override
-				public void onResized(ResizedEvent event) {
-					int newWidth = (ChatPanel.this.getWidth() - 140);
-					ChatPanel.log.log("onResized newWidth=" + newWidth);
-					textArea.setWidth(newWidth + "px");
-					textArea.setHeight("87px");
-				}
-			});
-		}
 	}
 	
-*/	
 
 	@Override
 	protected void onAttach() {
 		super.onAttach();
-		log.log("onAttach");
-		textArea.setWidth((this.getWidth() - 120) + "px");
-		button.setSize("95px", "95px");
-		addResizedHandler(new ResizedHandler() {
-			@Override
-			public void onResized(ResizedEvent event) {
-				int newWidth = (ChatPanel.this.getWidth() - 120);
-				ChatPanel.log.log("onResized newWidth=" + newWidth);
-				textArea.setWidth(newWidth + "px");
-				textArea.setHeight("87px");
-			}
-		});
+ 		log.log("onAttach");
 	}
 	
 	public void minimizeTextArea(){ // HACK CAN'T AVOID
@@ -209,34 +209,5 @@ public class ChatPanel extends VLayout implements ChatModel.Listener {
 		// TODO Auto-generated method stub
 		
 	}
-	
-	
-    class BlueBox extends Label {  
-    	  
-        public BlueBox(String contents) {  
-            setAlign(Alignment.CENTER);  
-            setBorder("1px solid #808080");  
-            setBackgroundColor("#C3D9FF");  
-            setContents(contents);  
-        }  
-  
-        public BlueBox(Integer width, Integer height, String contents) {  
-            this(contents);  
-            if (width != null) setWidth(width);  
-            if (height != null) setHeight(height);  
-        }  
-  
-        public BlueBox(Integer width, String height, String contents) {  
-            this(contents);  
-            if (width != null) setWidth(width);  
-            if (height != null) setHeight(height);  
-        }  
-  
-        public BlueBox(String width, String height, String contents) {  
-            this(contents);  
-            if (width != null) setWidth(width);  
-            if (height != null) setHeight(height);  
-        }  
-    }  	
 
 }

@@ -20,6 +20,7 @@ public abstract class BaseChatModelImpl implements ChatModel {
 
 	public void setChatId(Integer chatId) {
 		this.chatId = chatId;
+		setLastMessageId(-1);
 	}
 
 	public Integer getLastMessageId() {
