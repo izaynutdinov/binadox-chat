@@ -14,6 +14,7 @@ import org.hibernate.Query;
 
 import net.iskandar.for_binadox.chat.server.domain.Chat;
 import net.iskandar.for_binadox.chat.server.domain.ChatMessage;
+import net.iskandar.for_binadox.chat.server.domain.ChatMessages;
 import net.iskandar.for_binadox.chat.server.domain.ChatUser;
 import net.iskandar.for_binadox.chat.server.domain.User;
 import net.iskandar.for_binadox.chat.server.service.ChatService;
@@ -55,17 +56,30 @@ public class ChatServiceHibernateImpl extends BaseHibernateService implements Ch
 	}
 
 	@Override
-	public List<ChatMessage> getChatMessages(User user, Integer chatId, int days)
+	public ChatMessages getChatMessages(User user, Integer chatId, int days)
 			throws ChatServiceException {
 		ChatUser chatUser = getChatUser(user, chatId);
 		if(chatUser != null){
 			try {
+				ChatMessages chatMessages = new ChatMessages(); 
+				Chat chat = (Chat) getSession().get(Chat.class, chatId);
+				chatMessages.setChatId(chatId);
+				chatMessages.setLastMessageId(chat.getLastMessageId());
+
 				Query query = getSession().createQuery("from ChatMessage cm where cm.chatUser.chat.id=:chatId and cm.time>=:today order by cm.id");
 				query.setParameter("chatId", chatId);
 				Date today = getMinusDays(days);
 				log.debug("GETTING MESSAGES FOR DAY: " + today);
 				query.setDate("today", today);
-				return query.list();
+				List<ChatMessage> messages = query.list();
+				for(ChatMessage message : messages){
+					if(message.getId().compareTo(chatMessages.getLastMessageId()) > 0){
+						chatMessages.setLastMessageId(message.getId());
+					}
+				}
+
+				chatMessages.setChatMessages(messages);
+				return chatMessages;
 			} catch(Throwable t){
 				t.printStackTrace();
 				throw new ChatServiceException(t.getMessage(), t);
@@ -113,6 +127,8 @@ public class ChatServiceHibernateImpl extends BaseHibernateService implements Ch
 			chatMessage.setTime(new Date());
 			chatMessage.setText(text);
 			getSession().save(chatMessage);
+			log.debug("postMessage lastMessageId=" + chatMessage.getId());
+			chatUser.getChat().setLastMessageId(chatMessage.getId());			
 		} else {
 			throw new ChatServiceException("User \"" + user.getLogin() + "\" is not permitted to post to chat - " + chatId);
 		}
@@ -127,7 +143,7 @@ public class ChatServiceHibernateImpl extends BaseHibernateService implements Ch
 		c.add(Calendar.DAY_OF_YEAR, -days);
 		return c.getTime();
 	}
-	
+
 	public static void main(String[] args){
 		System.out.println(getMinusDays(0));
 	}

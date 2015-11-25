@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 
 
 
+
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,10 +24,12 @@ import net.iskandar.for_binadox.chat.client.ChatFacade;
 import net.iskandar.for_binadox.chat.client.ChatFacadeException;
 import net.iskandar.for_binadox.chat.client.ChatFacadeException.ErrorCode;
 import net.iskandar.for_binadox.chat.client.to.ChatMessageTo;
+import net.iskandar.for_binadox.chat.client.to.ChatMessagesTo;
 import net.iskandar.for_binadox.chat.client.to.ChatTo;
 import net.iskandar.for_binadox.chat.client.to.ChatUserTo;
 import net.iskandar.for_binadox.chat.server.domain.Chat;
 import net.iskandar.for_binadox.chat.server.domain.ChatMessage;
+import net.iskandar.for_binadox.chat.server.domain.ChatMessages;
 import net.iskandar.for_binadox.chat.server.domain.ChatUser;
 import net.iskandar.for_binadox.chat.server.domain.User;
 import net.iskandar.for_binadox.chat.server.service.ChatService;
@@ -98,7 +102,7 @@ public class ChatFacadeImpl extends RemoteServiceServlet implements ChatFacade {
 	}
 
 	@Override
-	public List<ChatMessageTo> getChatMessages(Integer chatId, int days)
+	public ChatMessagesTo getChatMessages(Integer chatId, int days)
 			throws ChatFacadeException {
 		log.debug("getChatMessages chatId=" + chatId + ", days=" + days);
 		
@@ -106,11 +110,16 @@ public class ChatFacadeImpl extends RemoteServiceServlet implements ChatFacade {
 		if(currentUser == null)
 			throw createNotLoggedIn("You are not logged in!");
 		try {
-			List<ChatMessageTo> result = new ArrayList<ChatMessageTo>();
-			for(ChatMessage chatMessage : chatService.getChatMessages(currentUser, chatId, days)){
-				result.add(Utils.createChatMessageTo(chatMessage));
+			ChatMessagesTo chatMessagesTo = new ChatMessagesTo();
+			List<ChatMessageTo> messages = new ArrayList<ChatMessageTo>();
+			ChatMessages chatMessages = chatService.getChatMessages(currentUser, chatId, days);
+			chatMessagesTo.setChatId(chatMessages.getChatId());
+			chatMessagesTo.setLastMessageId(chatMessages.getLastMessageId());
+			for(ChatMessage chatMessage : chatMessages.getChatMessages()){
+				messages.add(Utils.createChatMessageTo(chatMessage));
 			}
-			return result;
+			chatMessagesTo.setMessages(messages);
+			return chatMessagesTo;
 		} catch (ChatServiceException e) {
 			throw createServiceError(e);
 		}

@@ -9,6 +9,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import net.iskandar.for_binadox.chat.client.ChatFacadeAsync;
 import net.iskandar.for_binadox.chat.client.log.Logger;
 import net.iskandar.for_binadox.chat.client.to.ChatMessageTo;
+import net.iskandar.for_binadox.chat.client.to.ChatMessagesTo;
 
 public class PollingChatModelImpl extends BaseChatModelImpl {
 
@@ -29,10 +30,12 @@ public class PollingChatModelImpl extends BaseChatModelImpl {
 			updateMessagesTimer = null;
 		}
 		log.log("About to call getChatMessages chatId = " + getChatId() + ", daysMessages = " + getDaysMessages());
-		chatFacade.getChatMessages(getChatId(), getDaysMessages(), new AsyncCallback<List<ChatMessageTo>>() {
+		chatFacade.getChatMessages(getChatId(), getDaysMessages(), new AsyncCallback<ChatMessagesTo>() {
 			@Override
-			public void onSuccess(List<ChatMessageTo> result) {
-				onNewMessages(result);
+			public void onSuccess(ChatMessagesTo result) {
+				onNewMessages(result.getMessages());
+				if(result.getMessages().isEmpty())
+					setLastMessageId(result.getLastMessageId());
 				updateMessagesTimer = new Timer(){
 					@Override
 					public void run() {

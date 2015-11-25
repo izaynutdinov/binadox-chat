@@ -26,6 +26,9 @@ public class Chat {
 	
 	@Column(name="DESCRIPTION")
 	private String description;
+	
+	@Column(name="LAST_MESSAGE_ID")
+	private Integer lastMessageId;
 
 	public Integer getId() {
 		return id;
@@ -57,6 +60,14 @@ public class Chat {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public Integer getLastMessageId() {
+		return lastMessageId;
+	}
+
+	public void setLastMessageId(Integer lastMessageId) {
+		this.lastMessageId = lastMessageId;
 	}
 	
 }

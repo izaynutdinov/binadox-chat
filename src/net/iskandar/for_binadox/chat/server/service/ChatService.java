@@ -3,6 +3,7 @@ package net.iskandar.for_binadox.chat.server.service;
 import java.util.List;
 
 import net.iskandar.for_binadox.chat.server.domain.Chat;
+import net.iskandar.for_binadox.chat.server.domain.ChatMessages;
 import net.iskandar.for_binadox.chat.server.domain.ChatUser;
 import net.iskandar.for_binadox.chat.server.domain.User;
 import net.iskandar.for_binadox.chat.server.domain.ChatMessage;
@@ -25,7 +26,7 @@ public interface ChatService {
 	 * @return
 	 * @throws ChatServiceException
 	 */
-	List<ChatMessage> getChatMessages(User user, Integer chatId, int days) throws ChatServiceException;
+	ChatMessages getChatMessages(User user, Integer chatId, int days) throws ChatServiceException;
 	
 	/**
 	 * Returns chat messages from the beginning
