@@ -10,6 +10,7 @@ import net.iskandar.for_binadox.chat.client.model.ChatModel;
 import net.iskandar.for_binadox.chat.client.to.ChatMessageTo;
 import net.iskandar.for_binadox.chat.client.to.UserTo;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -52,16 +53,16 @@ public class ChatPanel extends VLayout implements ChatModel.Listener, Resizeable
 	private ChatModel chatModel;
 	private Button button;
 	private Integer chatId;
-	
+
 	private HandlerRegistration resizeHandler;
-	
+
 	private Timer scrollToBottom = new Timer(){
 
 		@Override
 		public void run() {
 			chatLog.scrollToBottom();
 		}
-		
+
 	};
 	
 	public ChatPanel(ChatModel chatModel) {
@@ -91,21 +92,18 @@ public class ChatPanel extends VLayout implements ChatModel.Listener, Resizeable
 
 		button = new Button("Send");
 		button.addClickHandler(new ClickHandler() {
-
 			@Override
 			public void onClick(ClickEvent event) {
 				ChatPanel.this.chatModel.postMessage(textArea.getText());
 				textArea.setText("");
 				button.setEnabled(false);
 			}
-
 		});
 		button.setWidth("95px");
 		button.setHeight("95px");
 		button.setEnabled(false);
 		
 		textArea.addKeyUpHandler(new KeyUpHandler() {
-			
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
 				log.log("textArea.onKeyUp text=" + textArea.getText());

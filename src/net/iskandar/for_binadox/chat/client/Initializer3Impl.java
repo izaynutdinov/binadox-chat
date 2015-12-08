@@ -11,7 +11,12 @@ import net.iskandar.for_binadox.chat.client.mvp.ui.CenterPanel;
 import net.iskandar.for_binadox.chat.client.mvp.ui.ChatPanel;
 import net.iskandar.for_binadox.chat.client.to.ChatTo;
 
+import com.codeveo.gwt.stomp.client.Message;
+import com.codeveo.gwt.stomp.client.MessageListener;
+import com.codeveo.gwt.stomp.client.StompClient;
+import com.codeveo.gwt.stomp.client.StompJS;
 import com.google.gwt.activity.shared.ActivityManager;
+import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
@@ -43,7 +48,7 @@ public class Initializer3Impl implements Initializer {
 
 	private static final ClientFactory clientFactory = GWT
 			.create(ClientFactory.class);
-	
+
 	private String nodeId;
 	
 	private Timer treeSelectionTimer = new Timer(){
@@ -62,10 +67,44 @@ public class Initializer3Impl implements Initializer {
 	};
 	
 	private static final Place defaultPlace = new ChatPlace("1");
+	
+	private StompClient stompClient;
 
 	@Override
 	public void initApp() {
+		StompJS.install();
 		log.log("initApp");
+		String baseUrl = GWT.getHostPageBaseURL();
+		log.log("Module base URL: " + baseUrl);
+
+		stompClient = new StompClient("ws://localhost:8080/binadox-chat/app/stomp", new StompClient.Callback() {
+			
+			@Override
+			public void onError(String cause) {
+				log.log("ERROR: cause=" + cause);
+			}
+			
+			@Override
+			public void onDisconnect() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onConnect() {
+				log.log("stompClient.onConnect");
+				stompClient.subscribe("/chats/1", new MessageListener() {
+					@Override
+					public void onMessage(Message message) {
+						log.log("stompClient.onMessage: " + message.getBody());
+					}
+				});
+				
+			}
+		}, false, true);
+		log.log("About to connect to stomp!");
+		stompClient.connect();
+
 		Window.enableScrolling(false);
 		clientFactory.chatFacade().getChats(new AsyncCallback<List<ChatTo>>() {
 

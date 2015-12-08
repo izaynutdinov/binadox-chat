@@ -1,5 +1,6 @@
 package net.iskandar.for_binadox.chat.server.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,7 +18,7 @@ public class Chat {
     @GeneratedValue
     private Integer id;
 	
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=false, cascade=CascadeType.ALL)
 	@JoinColumn(name="OWNER_ID", nullable=false)
 	private User owner;
 	

@@ -42,7 +42,7 @@ public class PollingChatModelImpl extends BaseChatModelImpl {
 						updateMessages();
 					}
 				};
-				updateMessagesTimer.schedule(1000);
+				//updateMessagesTimer.schedule(1000);
 			}
 
 			@Override

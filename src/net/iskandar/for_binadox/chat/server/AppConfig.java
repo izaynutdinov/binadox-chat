@@ -6,63 +6,42 @@ import javax.sql.DataSource;
 
 import net.iskandar.for_binadox.chat.server.service.ChatService;
 import net.iskandar.for_binadox.chat.server.service.impl.ChatServiceHibernateImpl;
+import net.iskandar.for_binadox.chat.server.service.impl.ChatServiceJpaImpl;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.hibernate.SessionFactory;
+import org.hibernate.dialect.MySQLDialect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor;
+import org.springframework.orm.jpa.vendor.Database;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 
 @Configuration
-@EnableTransactionManagement
+@ImportResource("/WEB-INF/jpa.xml")
 public class AppConfig {
 
-    @Bean
-    public LocalSessionFactoryBean sessionFactory(){
-        System.out.println("================================= CREATING LocalSessionFactoryBean =======================================");
-        System.out.println("dataSource=" + dataSource().toString());
-        LocalSessionFactoryBean lsfb = new LocalSessionFactoryBean();
-        lsfb.setDataSource(dataSource());
-        lsfb.setPackagesToScan(new String[]{"net.iskandar.for_binadox.chat.server.domain"});
-        Properties props = new Properties();
-        props.setProperty("hibernate.show_sql", "true");
-        props.setProperty("hibernate.format_sql", "true");
-        lsfb.setHibernateProperties(props);
-        return lsfb;
-    }
-    
-    @Bean
-    @Autowired
-    public HibernateTransactionManager transactionManager(SessionFactory sessionFactory){
-        HibernateTransactionManager tm = new HibernateTransactionManager(sessionFactory);
-        return tm;
-    }
+	@Bean
+	public ChatService chatService() {
+		ChatServiceJpaImpl chatService = new ChatServiceJpaImpl();
+		return chatService;
+	}
 
-    @Bean
-    public DataSource dataSource(){
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost/chat");
-        dataSource.setUsername("chat");
-        dataSource.setPassword("qwerty");
-        return dataSource;
-    }
-    
-    @Bean
-    public ChatService chatService(){
-    	ChatServiceHibernateImpl chatService = new ChatServiceHibernateImpl();
-    	return chatService;
-    }
-    
-    @Bean
-    public ChatFacadeImpl chatFacade(){
-    	ChatFacadeImpl chatFacadeImpl = new ChatFacadeImpl();
-    	chatFacadeImpl.setChatService(chatService());
-    	return chatFacadeImpl;
-    }
+	@Bean
+	public ChatFacadeImpl chatFacade() {
+		ChatFacadeImpl chatFacadeImpl = new ChatFacadeImpl();
+		chatFacadeImpl.setChatService(chatService());
+		return chatFacadeImpl;
+	}
 
 }

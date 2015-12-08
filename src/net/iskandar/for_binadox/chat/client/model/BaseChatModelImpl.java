@@ -3,8 +3,6 @@ package net.iskandar.for_binadox.chat.client.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import net.iskandar.for_binadox.chat.client.to.ChatMessageTo;
 
 public abstract class BaseChatModelImpl implements ChatModel {

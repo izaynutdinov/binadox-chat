@@ -36,7 +36,8 @@
     
     <filter-mapping>
         <filter-name>open-session-in-view</filter-name>
-        <url-pattern>/*</url-pattern>
+        <servlet-name>webmvc</servlet-name>
+        <servlet-name>chatFacade</servlet-name>
     </filter-mapping>
     
     <servlet>
@@ -56,11 +57,36 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
-    
+
     <servlet-mapping>
         <servlet-name>webmvc</servlet-name>
         <url-pattern>*.mvc</url-pattern>
-    </servlet-mapping>    
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>websocket</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextClass</param-name>
+            <param-value>
+                org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>
+                net.iskandar.for_binadox.chat.server.websocket.WebSocketConfig
+            </param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>        
+    </servlet>    
+    
+    <servlet-mapping>
+        <servlet-name>websocket</servlet-name>
+        <url-pattern>/app/*</url-pattern>
+    </servlet-mapping>
+        
 
 	<!-- Servlets -->
 	<servlet>

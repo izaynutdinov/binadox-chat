@@ -11,7 +11,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Query;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 
+import net.iskandar.for_binadox.chat.server.Utils;
 import net.iskandar.for_binadox.chat.server.domain.Chat;
 import net.iskandar.for_binadox.chat.server.domain.ChatMessage;
 import net.iskandar.for_binadox.chat.server.domain.ChatMessages;
@@ -23,6 +26,9 @@ import net.iskandar.for_binadox.chat.server.service.ChatServiceException;
 public class ChatServiceHibernateImpl extends BaseHibernateService implements ChatService {
 
 	private static final Logger log = LogManager.getLogger(ChatServiceHibernateImpl.class);
+	
+	@Autowired
+	private SimpMessageSendingOperations messaging;
 	
 	@Override
 	public User login(String login, String password) {
@@ -44,7 +50,7 @@ public class ChatServiceHibernateImpl extends BaseHibernateService implements Ch
 		query.setParameter("user", user);
 		return query.list();
 	}
-	
+
 	public List<ChatUser> getChatUsers(User user, Integer chatId) throws ChatServiceException {
 		ChatUser chatUser = getChatUser(user, chatId);
 		if(chatUser == null){
@@ -128,7 +134,8 @@ public class ChatServiceHibernateImpl extends BaseHibernateService implements Ch
 			chatMessage.setText(text);
 			getSession().save(chatMessage);
 			log.debug("postMessage lastMessageId=" + chatMessage.getId());
-			chatUser.getChat().setLastMessageId(chatMessage.getId());			
+			chatUser.getChat().setLastMessageId(chatMessage.getId());
+			messaging.convertAndSend("/chats/" + chatId, Utils.createChatMessageTo(chatMessage));
 		} else {
 			throw new ChatServiceException("User \"" + user.getLogin() + "\" is not permitted to post to chat - " + chatId);
 		}
