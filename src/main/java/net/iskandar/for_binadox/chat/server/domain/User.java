@@ -23,7 +23,7 @@ public class User {
     @Column(name="LOGIN")
     private String login;
 
-    @Column(name="PASSWORD_MD5")
+    @Column(name="PASSWORD_MD5", columnDefinition="char(32)")
     private String passwordMd5;
 
     @Column(name="EMAIL")
@@ -32,7 +32,7 @@ public class User {
     @Column(name="EMAIL_VERIFIED")
     private Boolean emailVerified;
 
-    @Column(name="EMAIL_VERIFICATION_TOKEN")
+    @Column(name="EMAIL_VERIFICATION_TOKEN", columnDefinition="char(32)")
     private String emailVerificationToken;
 
 	public Integer getId() {

@@ -25,7 +25,7 @@ public class Chat {
 	@Column(name="TITLE")
 	private String title;
 	
-	@Column(name="DESCRIPTION")
+	@Column(name="DESCRIPTION", columnDefinition="text")
 	private String description;
 	
 	@Column(name="LAST_MESSAGE_ID")

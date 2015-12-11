@@ -13,7 +13,11 @@ import javax.transaction.Transactional;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.MessageBuilder;
 
+import net.iskandar.for_binadox.chat.client.to.ChatMessageTo;
 import net.iskandar.for_binadox.chat.server.Utils;
 import net.iskandar.for_binadox.chat.server.domain.Chat;
 import net.iskandar.for_binadox.chat.server.domain.ChatMessage;
@@ -29,6 +33,16 @@ public class ChatServiceJpaImpl implements ChatService {
 	
 	@PersistenceContext
 	private EntityManager em;
+	
+	private MessageChannel channel;
+	
+	public MessageChannel getChannel() {
+		return channel;
+	}
+
+	public void setChannel(MessageChannel channel) {
+		this.channel = channel;
+	}
 
 	@Override
 	public User login(String login, String password) {
@@ -128,6 +142,8 @@ public class ChatServiceJpaImpl implements ChatService {
 			chatMessage.setTime(new Date());
 			chatMessage.setText(text);
 			em.persist(chatMessage);
+			Message<ChatMessageTo> message = MessageBuilder.withPayload(Utils.createChatMessageTo(chatMessage)).build();
+			channel.send(message);
 			log.debug("postMessage lastMessageId=" + chatMessage.getId());
 			chatUser.getChat().setLastMessageId(chatMessage.getId());
 		} else {

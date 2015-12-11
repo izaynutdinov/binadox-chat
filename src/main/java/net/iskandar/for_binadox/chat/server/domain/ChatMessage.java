@@ -25,7 +25,7 @@ public class ChatMessage {
 	@Column(name="MSG_TIME")
 	private Date time;
 	
-	@Column(name="MSG_TEXT")
+	@Column(name="MSG_TEXT", columnDefinition="text")
 	private String text;
 
 	public Integer getId() {

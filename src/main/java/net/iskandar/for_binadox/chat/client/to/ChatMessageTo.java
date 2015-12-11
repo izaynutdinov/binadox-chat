@@ -41,5 +41,18 @@ public class ChatMessageTo implements Serializable {
 	public void setText(String text) {
 		this.text = text;
 	}
+	
+	@Override
+	public String toString(){
+		StringBuffer rep = new StringBuffer("ChatMessageTo ( from: ");
+		rep.append(getChatUser().getUser().getFirstName());
+		rep.append(" ");
+		rep.append(getChatUser().getUser().getLastName());
+		rep.append(", time: ");
+		rep.append(getTime());
+		rep.append(", text: ");
+		rep.append(getText());
+		return rep.toString();
+	}
 
 }

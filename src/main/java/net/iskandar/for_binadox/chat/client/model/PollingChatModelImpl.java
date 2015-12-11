@@ -1,79 +1,45 @@
 package net.iskandar.for_binadox.chat.client.model;
 
-import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import net.iskandar.for_binadox.chat.client.ChatFacadeAsync;
 import net.iskandar.for_binadox.chat.client.log.Logger;
 import net.iskandar.for_binadox.chat.client.to.ChatMessageTo;
-import net.iskandar.for_binadox.chat.client.to.ChatMessagesTo;
+import net.iskandar.for_binadox.chat.client.mvp.ClientFactory;
 
 public class PollingChatModelImpl extends BaseChatModelImpl {
 
-	private ChatFacadeAsync chatFacade;
 	private Timer updateMessagesTimer;
 	private static final Logger log = new Logger("PollingChatModelImpl");
 
-	public PollingChatModelImpl(ChatFacadeAsync chatFacade) {
-		super();
-		this.chatFacade = chatFacade;
+	public PollingChatModelImpl(ClientFactory clientFactory){
+		super(clientFactory);
 	}
 
 	@Override
-	protected void doInit() {
+	protected void doBeforeInit(){
 		if(updateMessagesTimer != null){
 			if(updateMessagesTimer.isRunning())
 				updateMessagesTimer.cancel();
 			updateMessagesTimer = null;
 		}
-		log.log("About to call getChatMessages chatId = " + getChatId() + ", daysMessages = " + getDaysMessages());
-		chatFacade.getChatMessages(getChatId(), getDaysMessages(), new AsyncCallback<ChatMessagesTo>() {
-			@Override
-			public void onSuccess(ChatMessagesTo result) {
-				onNewMessages(result.getMessages());
-				if(result.getMessages().isEmpty())
-					setLastMessageId(result.getLastMessageId());
-				updateMessagesTimer = new Timer(){
-					@Override
-					public void run() {
-						updateMessages();
-					}
-				};
-				//updateMessagesTimer.schedule(1000);
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				
-			}
-		});
 	}
 
 	@Override
-	public void postMessage(String text) {
-		if(updateMessagesTimer != null && updateMessagesTimer.isRunning())
-			updateMessagesTimer.cancel();
-		chatFacade.postMessage(getChatId(), text, new AsyncCallback<Void>() {
+	protected void doAfterInit() {
+		updateMessagesTimer = new Timer(){
 			@Override
-			public void onFailure(Throwable caught) {
-				log.log("postMessage.onFailure");
-				
-			}
-
-			@Override
-			public void onSuccess(Void result) {
-				log.log("postMessage.onSuccess");				
+			public void run() {
 				updateMessages();
 			}
-		});
+		};
+		updateMessagesTimer.schedule(1000);		
 	}
-	
-	protected void updateMessages(){
-		chatFacade.updateChatMessages(new Integer[]{ getChatId() }, getLastMessageId(), new AsyncCallback<List<ChatMessageTo>>() {
 
+	protected void updateMessages(){
+		/*chatFacade.updateChatMessages(new Integer[]{ getChatId() }, getLastMessageId(), new AsyncCallback<List<ChatMessageTo>>() {
 			@Override
 			public void onSuccess(List<ChatMessageTo> result) {
 				onNewMessages(result);
@@ -83,13 +49,23 @@ public class PollingChatModelImpl extends BaseChatModelImpl {
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
 			}
-
-		});
+		});*/
 		updateMessagesTimer.schedule(1000);
 	}
 
-	private native int getTimeZoneOffset() /*-{
+	private native int getTimeZoneOffset()/*-{
     	return new Date().getTimezoneOffset();
 	}-*/;
+
+	@Override
+	protected void doBeforePostMessage(){
+		if(updateMessagesTimer != null && updateMessagesTimer.isRunning())
+			updateMessagesTimer.cancel();
+	}
+
+	@Override
+	protected void doAfterPostMessage(){
+		updateMessages();
+	}
 
 }

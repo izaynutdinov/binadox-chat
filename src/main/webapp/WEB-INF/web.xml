@@ -14,20 +14,20 @@
 	<context-param>
 		<param-name>contextClass</param-name>
 		<param-value>
-            org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+            org.springframework.web.context.support.XmlWebApplicationContext
         </param-value>
 	</context-param>
 	
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>net.iskandar.for_binadox.chat.server.AppConfig</param-value>
+		<param-value>/WEB-INF/applicationContext.xml</param-value>
 	</context-param>
 
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 	
-	<filter>
+<!-- <filter>
         <filter-name>open-session-in-view</filter-name>
         <filter-class>
             org.springframework.orm.hibernate4.support.OpenSessionInViewFilter 
@@ -38,7 +38,7 @@
         <filter-name>open-session-in-view</filter-name>
         <servlet-name>webmvc</servlet-name>
         <servlet-name>chatFacade</servlet-name>
-    </filter-mapping>
+    </filter-mapping> -->
     
     <servlet>
         <servlet-name>webmvc</servlet-name>
@@ -69,14 +69,12 @@
         <init-param>
             <param-name>contextClass</param-name>
             <param-value>
-                org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+                org.springframework.web.context.support.XmlWebApplicationContext
             </param-value>
         </init-param>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>
-                net.iskandar.for_binadox.chat.server.websocket.WebSocketConfig
-            </param-value>
+            <param-value>/WEB-INF/websocket.xml</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
         <async-supported>true</async-supported>        

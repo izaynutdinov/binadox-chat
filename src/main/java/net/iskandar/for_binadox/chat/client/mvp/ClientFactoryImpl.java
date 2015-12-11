@@ -8,6 +8,7 @@ import com.google.gwt.place.shared.PlaceController;
 import net.iskandar.for_binadox.chat.client.ChatFacade;
 import net.iskandar.for_binadox.chat.client.ChatFacadeAsync;
 import net.iskandar.for_binadox.chat.client.model.PollingChatModelImpl;
+import net.iskandar.for_binadox.chat.client.model.StompChatModel;
 import net.iskandar.for_binadox.chat.client.mvp.ui.ChatPanel;
 
 public class ClientFactoryImpl implements ClientFactory {
@@ -18,7 +19,7 @@ public class ClientFactoryImpl implements ClientFactory {
 	private static PlaceController placeController;	
 
 	static {
-		PollingChatModelImpl chatModel = new PollingChatModelImpl(chatFacade); 
+		StompChatModel chatModel = new StompChatModel(new ClientFactoryImpl()); 
 		chatPanel = new ChatPanel(chatModel);		
 	}
 

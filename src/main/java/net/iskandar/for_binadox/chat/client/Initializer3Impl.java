@@ -9,6 +9,7 @@ import net.iskandar.for_binadox.chat.client.mvp.ClientFactory;
 import net.iskandar.for_binadox.chat.client.mvp.places.ChatPlace;
 import net.iskandar.for_binadox.chat.client.mvp.ui.CenterPanel;
 import net.iskandar.for_binadox.chat.client.mvp.ui.ChatPanel;
+import net.iskandar.for_binadox.chat.client.to.ChatMessageTo;
 import net.iskandar.for_binadox.chat.client.to.ChatTo;
 
 import com.codeveo.gwt.stomp.client.Message;
@@ -52,7 +53,6 @@ public class Initializer3Impl implements Initializer {
 	private String nodeId;
 	
 	private Timer treeSelectionTimer = new Timer(){
-
 		@Override
 		public void run() {
 			log.log("treeSelectionTimer.run id=" + nodeId);
@@ -63,47 +63,14 @@ public class Initializer3Impl implements Initializer {
 				;
 			}
 		}
-
 	};
 	
 	private static final Place defaultPlace = new ChatPlace("1");
 	
-	private StompClient stompClient;
 
 	@Override
 	public void initApp() {
 		StompJS.install();
-		log.log("initApp");
-		String baseUrl = GWT.getHostPageBaseURL();
-		log.log("Module base URL: " + baseUrl);
-
-		stompClient = new StompClient("ws://localhost:8080/binadox-chat/app/stomp", new StompClient.Callback() {
-			
-			@Override
-			public void onError(String cause) {
-				log.log("ERROR: cause=" + cause);
-			}
-			
-			@Override
-			public void onDisconnect() {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onConnect() {
-				log.log("stompClient.onConnect");
-				stompClient.subscribe("/chats/1", new MessageListener() {
-					@Override
-					public void onMessage(Message message) {
-						log.log("stompClient.onMessage: " + message.getBody());
-					}
-				});
-				
-			}
-		}, false, true);
-		log.log("About to connect to stomp!");
-		stompClient.connect();
 
 		Window.enableScrolling(false);
 		clientFactory.chatFacade().getChats(new AsyncCallback<List<ChatTo>>() {
@@ -153,7 +120,7 @@ public class Initializer3Impl implements Initializer {
 //				centerPanel.setMembers(chatPanel);
 				mainLayout.setMembers(menu, centerPanel);
 				RootPanel.get().add(mainLayout);
-				
+
 				PlaceController placeController = clientFactory.placeController();
 				ChatActivityMapper activityMapper = new ChatActivityMapper(clientFactory);				
 				ActivityManager activityManager = new ActivityManager(activityMapper, clientFactory.eventBus());
@@ -164,7 +131,6 @@ public class Initializer3Impl implements Initializer {
 		        historyHandler.register(placeController, clientFactory.eventBus(), defaultPlace);				
 
 		        historyHandler.handleCurrentHistory();		        
-				
 			}
 
 		});
